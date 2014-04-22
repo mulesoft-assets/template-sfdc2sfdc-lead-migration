@@ -17,17 +17,17 @@
 
 
 # Use Case <a name="usecase"/>
-As a Salesforce admin I want to synchronize leads between two Salesfoce orgs.
+As a Salesforce admin I want to synchronize leads between two Salesforce orgs.
 
-This Anypoint Template should serve as a foundation for the process of migrating leads from one Salesfoce instance to another, being able to specify filtering criterias and desired behaviour when a lead already exists in the destination org. 
+This Anypoint Template should serve as a foundation for the process of migrating leads from one Salesforce instance to another, being able to specify filtering criteria and desired behavior when a lead already exists in the destination org. 
 
 As implemented, this Anypoint Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
 The batch job is divided in  Input, Process and On Complete stages.
 During the Input stage the Anypoint Template will go to the SalesForce Org A and query all the existing Leads that match the filter criteria.
 During the Process stage, each SFDC Lead will be filtered depending on, if it has an existing matching lead in the SFDC Org B and if the last updated date of the later is greater than the one of SFDC Org A.
 The last step of the Process stage will group the leads and create them in SFDC Org B.
-Finally during the On Complete stage the Anypoint Template will both otput statistics data into the console and send a notification email with the results of the batch excecution.
-In any event the Anypoint Template can be configure to also move over the Account to which the Lead is related. The application can either, create the Account if it doesn't exitis, assing the Lead to a pre existing Account in Salesforce instance B, or do nothing in what regards to the Account. 
+Finally during the On Complete stage the Anypoint Template will both output statistics data into the console and send a notification email with the results of the batch execution.
+In any event the Anypoint Template can be configure to also move over the Account to which the Lead is related. The application can either, create the Account if it doesn't exists, assign the Lead to a pre-existing Account in Salesforce instance B, or do nothing in what regards to the Account. 
 
 # Run it! <a name="runit"/>
 
@@ -60,13 +60,13 @@ Once you have imported your Anypoint Template into Anypoint Studio you need to f
 ### Running on Mule ESB stand alone  <a name="runonmuleesbstandalone"/>
 Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
 
-Once your app is all set and started, there is no need to do anything else. The application will poll SalesForce to know if there are any newly created or updated objects and synchronice them.
+Once your app is all set and started, there is no need to do anything else. The application will poll SalesForce to know if there are any newly created or updated objects and synchronize them.
 
 ## Running on CloudHub <a name="runoncloudhub"/>
 
 While [creating your application on CloudHub](http://www.mulesoft.org/documentation/display/current/Hello+World+on+CloudHub) (Or you can do it later as a next step), you need to go to Deployment > Advanced to set all environment variables detailed in **Properties to be configured** as well as the **mule.env**. 
 
-Once your app is all set and started, supposing you choose as domain name `sfdcleadsync` to trigger the use case you just need to hit `http://sfdcleadsync.cloudhub.io/syncleads` and report will be sent to the emails configured.
+Once your app is all set and started, supposing you choose as domain name `sfdcleadsync` to trigger the use case you just need to hit `http://sfdcleadsync.cloudhub.io/syncleads` and report will be sent to the e-mails configured.
 
 ### Deploying your Anypoint Template on CloudHub <a name="deployingyouranypointtemplateoncloudhub"/>
  	
@@ -84,9 +84,9 @@ In order to use this Anypoint Template you need to configure properties (Credent
 
 **Note:** the property **account.sync.policy** can take any of the three following values: 
 
-+ **empty_value**: if the propety has no value assigned to it then application will do nothing in what respect to the account and it'll just move the lead over.
-+ **syncAccount**: it will try to create the lead's account should this is not pressent in the Salesforce instance B.
-+ **assignDummyAccount**: it will assign the cotact to an pre existing account in Salesforce instance B. For this it will use the value of  `account.id.in.b`. Finding the Id of the desired Account can be done by executing in your **Sales Force Developer Console** the following query: `SELECT Id, Name, Description FROM Account`.
++ **empty_value**: if the property has no value assigned to it then application will do nothing in what respect to the account and it'll just move the lead over.
++ **syncAccount**: it will try to create the lead's account should this is not present in the Salesforce instance B.
++ **assignDummyAccount**: it will assign the lead to an pre-existing account in Salesforce instance B. For this it will use the value of  `account.id.in.b`. Finding the Id of the desired Account can be done by executing in your **Sales Force Developer Console** the following query: `SELECT Id, Name, Description FROM Account`.
 
 
 
@@ -124,7 +124,7 @@ For instance if 10 records are fetched from origin instance, then 34 api calls w
 # Customize It!<a name="customizeit"/>
 
 This brief guide intends to give a high level idea of how this Anypoint Template is built and how you can change it according to your needs.
-As mule applications are based on XML files, this page will be organised by describing all the XML that conform the Anypoint Template.
+As mule applications are based on XML files, this page will be organized by describing all the XML that conform the Anypoint Template.
 Of course more files will be found such as Test Classes and [Mule Application Files](http://www.mulesoft.org/documentation/display/current/Application+Format), but to keep it simple we will focus on the XMLs.
 
 Here is a list of the main XML files you'll find in this application:
@@ -153,8 +153,8 @@ This Anypoint Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.o
 
 
 ## businessLogic.xml<a name="businesslogicxml"/>
-Functional aspect of the Anypoint Template is implemented on this XML, directed by one flow responsible of excecuting the logic.
-For the pourpose of this particular Anypoint Template the *mainFlow* just excecutes the Batch Job which handles all the logic of it.
+Functional aspect of the Anypoint Template is implemented on this XML, directed by one flow responsible of executing the logic.
+For the purpose of this particular Anypoint Template the *mainFlow* just excecutes the Batch Job which handles all the logic of it.
 This flow has Exception Strategy that basically consists on invoking the *defaultChoiseExceptionStrategy* defined in *errorHandling.xml* file.
 
 
@@ -172,7 +172,7 @@ These divide them self into two categories:
 You can run any of them by just doing right click on the class and clicking on run as Junit test.
 
 Do bear in mind that you'll have to tell the test classes which property file to use.
-For you convinience we have added a file mule.test.properties located in "src/test/resources".
+For you convenience we have added a file mule.test.properties located in "src/test/resources".
 In the run configurations of the test just make sure to add the following property:
 
 + -Dmule.env=test
