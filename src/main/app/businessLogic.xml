@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
+    <batch:job name="migrateLeadsBatch">
+        <batch:threading-profile poolExhaustedAction="WAIT"/>
+        <batch:input>
+            <sfdc:query config-ref="SalesforceA" query="SELECT Id, LastModifiedDate, Name, LastName, FirstName, Email, Country FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC" doc:name="query Leads from Salesforce instance A" fetchSize="${page.size}"/>
+        </batch:input> 
+        <batch:process-records>
+            <batch:step name="getLeadInBStep">
+                <enricher source="#[payload]" target="#[recordVars['leadInB']]" doc:name="store result in record var 'leadInB'">
+                    <sfdc:query-single config-ref="SalesforceB" query="SELECT Id, LastModifiedDate FROM Lead WHERE Email = '#[payload['Email']]'" doc:name="query Lead in Salesforce instance B"/>
+                </enricher>
+            </batch:step>
+            <batch:step name="findOrCreateAccountInBSetp" filter-expression="! ('syncAccount'=='${account.sync.policy}')">
+            <choice doc:name="Choice">
+                	<when expression="#[payload['Account'] != null]">
+                <enricher source="#[payload]" target="#[flowVars['accountInB']]" doc:name="store result in accountInB">
+                    <sfdc:query-single config-ref="SalesforceB" query="SELECT Id, Name FROM Account WHERE Name = '#[payload['Account']['Name']]'" doc:name="query Account in  Salesforce Instance B"/>
+                </enricher>
+                <choice doc:name="Choice">
+                    <when expression="#[flowVars['accountInB'] is NullPayload]">
+                        <enricher doc:name="store result in idOfAccountInB" target="#[recordVars['idOfAccountInB']]">
+	                        <processor-chain doc:name="Processor Chain">
+                                <expression-component doc:name="remove unnecessary fields"><![CDATA[payload['Account'].remove('Id');
+payload['Account'].put('NumberOfEmployees', payload['Account']['NumberOfEmployees'] == null ? 0 :  Integer.parseInt(payload['Account']['NumberOfEmployees']) );]]></expression-component>
+                                <set-payload value="#[ [payload['Account']]]" doc:name="Set Payload"/>
+       		                     <sfdc:create config-ref="SalesforceB" type="Account" doc:name="create Account in Salesforce Instance B">
+       	    	                     <sfdc:objects ref="#[payload]"/>
+       	        	             </sfdc:create>
+                                <expression-transformer expression="#[payload[0].getId()]" doc:name="get new account id"/>
+	                        </processor-chain>
+                        </enricher>
+                    </when>
+                    <otherwise>
+                        <enricher target="#[recordVars['idOfAccountInB']]" doc:name="store result in idOfAccountInB">
+     	                   <expression-transformer expression="#[flowVars['accountInB']['Id']]" doc:name="get new account id"/>
+                        </enricher>
+                    </otherwise>
+                </choice>
+                <expression-component doc:name="set AccountId"><![CDATA[payload['AccountId']= recordVars['idOfAccountInB'];
+]]></expression-component>
+</when>
+                    <otherwise>
+                        <logger level="INFO" doc:name="Logger" message="There is no Account assigned to this lead. Doing nothing"/>
+                    </otherwise>
+                </choice>
+            </batch:step>
+            <batch:step name="setDummyAccountIdStep" filter-expression="! ('assignDummyAccount'=='${account.sync.policy}')">
+                <expression-component doc:name="set AccountId"><![CDATA[payload['AccountId']= '${account.id.in.b}';]]></expression-component>
+            </batch:step>
+            <batch:step name="selectNewerLeadStep" filter-expression="#[recordVars['leadInB'] is NullPayload]">
+                <choice doc:name="Choice">
+                    <when expression="#[org.mule.templates.util.LeadDateComparator.isAfter(payload, recordVars['leadInB'])]">
+                        <expression-component doc:name="define Id in SalesForce Intance B"><![CDATA[payload['Id'] = recordVars['leadInB']['Id']
+
+]]></expression-component>
+                    </when>
+                    <otherwise>
+                        <set-payload doc:name="set to null to skip this lead" value="#[return null]"/>
+                    </otherwise>
+                </choice>
+            </batch:step>
+            <batch:step name="createLeadsInBStep" filter-expression="#[payload is NullPayload]">
+                <expression-component doc:name="remove Fields type and LastModifiedDate"><![CDATA[payload.remove('type'); 
+payload.remove('LastModifiedDate');
+payload.remove('Account');]]></expression-component>
+            	
+                <batch:commit size="200" doc:name="Batch Commit">
+					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="upsert leads in org B" externalIdFieldName="Id">
+                        <sfdc:objects ref="#[payload]"/>
+					</sfdc:upsert>
+                </batch:commit>
+            </batch:step>
+        </batch:process-records>
+        <batch:on-complete>
+            <all doc:name="All">
+                <processor-chain>
+            		<json:object-to-json-transformer doc:name="transform BatchJobInstance to JSON"/>
+            		<logger message="Migration process has finished: #[payload]" level="INFO" doc:name="log 'Migration process has finished'"/>
+						<logger message="Migration process has finished:" level="INFO" doc:name="log 'Migration process has finished'"/>
+                </processor-chain>
+				<processor-chain>
+                	<json:object-to-json-transformer doc:name="transform BatchJobInstance to JSON"/>
+					<smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" to="${mail.to}" from="${mail.from}" subject="${mail.subject}" responseTimeout="10000" connector-ref="gmailConnector" doc:name="send mail"/>
+				</processor-chain>
+            </all>
+        </batch:on-complete>
+    </batch:job>
+    <flow name="mainFlow" doc:name="mainFlow" processingStrategy="synchronous" doc:description="This flow is the entry point to the Anypoint Template  business logic.
+
+This flow should control the direction of the application, and it should be called by the different endpoints that your Anypoint Template  exposes to trigger it.
+
+">
+        <batch:execute name="migrateLeadsBatch" doc:name="trigger migrateLeadsBatch"/>
+        <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="catch Exception and call defaultChoiceExceptionStrategy"/>
+    </flow>
+    
+    
+</mule>
