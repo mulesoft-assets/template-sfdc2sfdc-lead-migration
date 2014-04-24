@@ -32,10 +32,9 @@ import com.sforce.soap.partner.SaveResult;
  * @author damiansima
  * @author MartinZdila
  */
-public class BusinessLogicTestDoNotCreateAccountIT extends AbstractTemplateTestCase {
+public class BusinessLogicTest extends AbstractTemplateTestCase {
 
 	private List<Map<String, Object>> createdLeadsInA = new ArrayList<Map<String, Object>>();
-	private List<Map<String, Object>> createdAccountsInB = new ArrayList<Map<String, Object>>();
 
 	private BatchTestHelper helper;
 
@@ -60,8 +59,8 @@ public class BusinessLogicTestDoNotCreateAccountIT extends AbstractTemplateTestC
 		retrieveLeadFromBFlow = getSubFlow("retrieveLeadFromBFlow");
 		retrieveLeadFromBFlow.initialise();
 
-		retrieveAccountFlowFromB = getSubFlow("retrieveAccountFlowFromB");
-		retrieveAccountFlowFromB.initialise();
+//		retrieveAccountFlowFromB = getSubFlow("retrieveAccountFlowFromB");
+//		retrieveAccountFlowFromB.initialise();
 
 		createTestDataInSandBox();
 	}
@@ -79,13 +78,12 @@ public class BusinessLogicTestDoNotCreateAccountIT extends AbstractTemplateTestC
 		helper.awaitJobTermination(TIMEOUT_SEC * 1000, 500);
 		helper.assertJobWasSuccessful();
 
-		Assert.assertEquals("The lead should not have been sync", null, invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(0)));
-
-		Assert.assertEquals("The lead should not have been sync", null, invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(1)));
+//		Assert.assertEquals("The lead should not have been sync", null, invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(0)));
+//
+//		Assert.assertEquals("The lead should not have been sync", null, invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(1)));
 
 		Map<String, Object> payload = invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(2));
-		Assert.assertEquals("The lead should have been sync", createdLeadsInA.get(2)
-																					.get("Email"), payload.get("Email"));
+		Assert.assertEquals("The lead should have been sync", createdLeadsInA.get(2).get("Email"), payload.get("Email"));
 
 		Map<String, Object> fourthLead = createdLeadsInA.get(3);
 		payload = invokeRetrieveFlow(retrieveLeadFromBFlow, fourthLead);
@@ -97,7 +95,7 @@ public class BusinessLogicTestDoNotCreateAccountIT extends AbstractTemplateTestC
 	private void createTestDataInSandBox() throws MuleException, Exception {
 		// Create object in target system to be updated
 		Map<String, Object> lead_3_B = createLead("B", 3);
-		lead_3_B.put("MailingCountry", "United States");
+//		lead_3_B.put("MailingCountry", "United States");
 		List<Map<String, Object>> createdLeadInB = new ArrayList<Map<String, Object>>();
 		createdLeadInB.add(lead_3_B);
 
@@ -109,11 +107,11 @@ public class BusinessLogicTestDoNotCreateAccountIT extends AbstractTemplateTestC
 
 		// This lead should not be sync
 		Map<String, Object> lead_0_A = createLead("A", 0);
-		lead_0_A.put("MailingCountry", "Argentina");
+//		lead_0_A.put("MailingCountry", "Argentina");
 
 		// This lead should not be sync
 		Map<String, Object> lead_1_A = createLead("A", 1);
-		lead_1_A.put("MailingCountry", "Argentina");
+//		lead_1_A.put("MailingCountry", "Argentina");
 
 		// This lead should BE sync
 		Map<String, Object> lead_2_A = createLead("A", 2);
@@ -132,20 +130,17 @@ public class BusinessLogicTestDoNotCreateAccountIT extends AbstractTemplateTestC
 
 		MuleEvent event = createLeadInAFlow.process(getTestEvent(createdLeadsInA, MessageExchangePattern.REQUEST_RESPONSE));
 
-		List<SaveResult> results = (List<SaveResult>) event.getMessage()
-															.getPayload();
+		List<SaveResult> results = (List<SaveResult>) event.getMessage().getPayload();
 		System.out.println("Results from creation in A" + results.toString());
 		for (int i = 0; i < results.size(); i++) {
-			createdLeadsInA.get(i)
-								.put("Id", results.get(i)
-													.getId());
+			createdLeadsInA.get(i).put("Id", results.get(i).getId());
 		}
 		System.out.println("Results after adding" + createdLeadsInA.toString());
 	}
 
 	private void deleteTestDataFromSandBox() throws MuleException, Exception {
 		deleteTestLeadFromSandBox(createdLeadsInA);
-		deleteTestAccountFromSandBox(createdAccountsInB);
+//		deleteTestAccountFromSandBox(createdAccountsInB);
 	}
 
 }

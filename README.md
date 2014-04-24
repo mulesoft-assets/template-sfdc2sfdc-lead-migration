@@ -154,7 +154,7 @@ This Anypoint Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.o
 
 ## businessLogic.xml<a name="businesslogicxml"/>
 Functional aspect of the Anypoint Template is implemented on this XML, directed by one flow responsible of executing the logic.
-For the purpose of this particular Anypoint Template the *mainFlow* just excecutes the Batch Job which handles all the logic of it.
+For the purpose of this particular Anypoint Template the *mainFlow* just executes the Batch Job which handles all the logic of it.
 This flow has Exception Strategy that basically consists on invoking the *defaultChoiseExceptionStrategy* defined in *errorHandling.xml* file.
 
 
