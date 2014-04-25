@@ -36,7 +36,6 @@ public class AbstractTemplateTestCase extends FunctionalTestCase {
 	protected static final String TEMPLATE_NAME = "lead-migration";
 
 	protected SubflowInterceptingChainLifecycleWrapper retrieveLeadFromBFlow;
-//	protected SubflowInterceptingChainLifecycleWrapper retrieveAccountFlowFromB;
 
 	@Rule
 	public DynamicPort port = new DynamicPort("http.port");

@@ -38,18 +38,6 @@ public class BusinessLogicTest extends AbstractTemplateTestCase {
 
 	private BatchTestHelper helper;
 
-	@BeforeClass
-	public static void init() {
-		System.setProperty("account.sync.policy", "");
-		System.setProperty("account.id.in.b", "");
-	}
-
-	@AfterClass
-	public static void shutDown() {
-		System.clearProperty("account.sync.policy");
-		System.clearProperty("account.id.in.b");
-	}
-
 	@Before
 	public void setUp() throws Exception {
 
@@ -58,9 +46,6 @@ public class BusinessLogicTest extends AbstractTemplateTestCase {
 		// Flow to retrieve leads from target system after sync in g
 		retrieveLeadFromBFlow = getSubFlow("retrieveLeadFromBFlow");
 		retrieveLeadFromBFlow.initialise();
-
-//		retrieveAccountFlowFromB = getSubFlow("retrieveAccountFlowFromB");
-//		retrieveAccountFlowFromB.initialise();
 
 		createTestDataInSandBox();
 	}
@@ -78,14 +63,10 @@ public class BusinessLogicTest extends AbstractTemplateTestCase {
 		helper.awaitJobTermination(TIMEOUT_SEC * 1000, 500);
 		helper.assertJobWasSuccessful();
 
-//		Assert.assertEquals("The lead should not have been sync", null, invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(0)));
-//
-//		Assert.assertEquals("The lead should not have been sync", null, invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(1)));
+		Map<String, Object> payload = invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(0));
+		Assert.assertEquals("The lead should have been sync", createdLeadsInA.get(0).get("Email"), payload.get("Email"));
 
-		Map<String, Object> payload = invokeRetrieveFlow(retrieveLeadFromBFlow, createdLeadsInA.get(2));
-		Assert.assertEquals("The lead should have been sync", createdLeadsInA.get(2).get("Email"), payload.get("Email"));
-
-		Map<String, Object> fourthLead = createdLeadsInA.get(3);
+		Map<String, Object> fourthLead = createdLeadsInA.get(1);
 		payload = invokeRetrieveFlow(retrieveLeadFromBFlow, fourthLead);
 		assertEquals("The lead should have been sync (Email)", fourthLead.get("Email"), payload.get("Email"));
 		assertEquals("The lead should have been sync (FirstName)", fourthLead.get("FirstName"), payload.get("FirstName"));
@@ -95,7 +76,6 @@ public class BusinessLogicTest extends AbstractTemplateTestCase {
 	private void createTestDataInSandBox() throws MuleException, Exception {
 		// Create object in target system to be updated
 		Map<String, Object> lead_3_B = createLead("B", 3);
-//		lead_3_B.put("MailingCountry", "United States");
 		List<Map<String, Object>> createdLeadInB = new ArrayList<Map<String, Object>>();
 		createdLeadInB.add(lead_3_B);
 
@@ -105,25 +85,15 @@ public class BusinessLogicTest extends AbstractTemplateTestCase {
 
 		// Create leads in source system to be or not to be synced
 
-		// This lead should not be sync
-		Map<String, Object> lead_0_A = createLead("A", 0);
-//		lead_0_A.put("MailingCountry", "Argentina");
-
-		// This lead should not be sync
-		Map<String, Object> lead_1_A = createLead("A", 1);
-//		lead_1_A.put("MailingCountry", "Argentina");
-
 		// This lead should BE sync
-		Map<String, Object> lead_2_A = createLead("A", 2);
+		Map<String, Object> lead_0_A = createLead("A", 0);
 
 		// This lead should BE sync (updated)
-		Map<String, Object> lead_3_A = createLead("A", 3);
-		lead_3_A.put("Email", lead_3_B.get("Email"));
+		Map<String, Object> lead_1_A = createLead("A", 1);
+		lead_1_A.put("Email", lead_3_B.get("Email"));
 
 		createdLeadsInA.add(lead_0_A);
 		createdLeadsInA.add(lead_1_A);
-		createdLeadsInA.add(lead_2_A);
-		createdLeadsInA.add(lead_3_A);
 
 		SubflowInterceptingChainLifecycleWrapper createLeadInAFlow = getSubFlow("createLeadFlowA");
 		createLeadInAFlow.initialise();
@@ -140,7 +110,6 @@ public class BusinessLogicTest extends AbstractTemplateTestCase {
 
 	private void deleteTestDataFromSandBox() throws MuleException, Exception {
 		deleteTestLeadFromSandBox(createdLeadsInA);
-//		deleteTestAccountFromSandBox(createdAccountsInB);
 	}
 
 }

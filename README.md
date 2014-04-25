@@ -27,7 +27,6 @@ During the Input stage the Anypoint Template will go to the SalesForce Org A and
 During the Process stage, each SFDC Lead will be filtered depending on, if it has an existing matching lead in the SFDC Org B and if the last updated date of the later is greater than the one of SFDC Org A.
 The last step of the Process stage will group the leads and create them in SFDC Org B.
 Finally during the On Complete stage the Anypoint Template will both output statistics data into the console and send a notification email with the results of the batch execution.
-In any event the Anypoint Template can be configure to also move over the Account to which the Lead is related. The application can either, create the Account if it doesn't exists, assign the Lead to a pre-existing Account in Salesforce instance B, or do nothing in what regards to the Account. 
 
 # Run it! <a name="runit"/>
 
@@ -79,16 +78,6 @@ In order to use this Anypoint Template you need to configure properties (Credent
 
 ### Application configuration
 + http.port `9090` 
-+ account.sync.policy `syncAccount`
-+ account.id.in.b `001n0000003fMWXAA2`
-
-**Note:** the property **account.sync.policy** can take any of the three following values: 
-
-+ **empty_value**: if the property has no value assigned to it then application will do nothing in what respect to the account and it'll just move the lead over.
-+ **syncAccount**: it will try to create the lead's account should this is not present in the Salesforce instance B.
-+ **assignDummyAccount**: it will assign the lead to an pre-existing account in Salesforce instance B. For this it will use the value of  `account.id.in.b`. Finding the Id of the desired Account can be done by executing in your **Sales Force Developer Console** the following query: `SELECT Id, Name, Description FROM Account`.
-
-
 
 #### SalesForce Connector configuration for company A
 + sfdc.a.username `bob.dylan@orga`
@@ -112,13 +101,13 @@ In order to use this Anypoint Template you need to configure properties (Credent
 
 SalesForce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. User Broadcast Template calls to the API can be calculated using the formula:
 
-***1 + 3 X + X / 200***
+***1 + 2 X + X / 200***
 
 Being ***X*** the number of Users to be synchronized on each run. 
 
 The division by ***200*** is because, by default, Users are gathered in groups of 200 for each Upsert API Call in the commit step.	
 
-For instance if 10 records are fetched from origin instance, then 34 api calls will be made (1 + 3 10 + 3). This is the worst case scenario where it's require to also move the parent account for each lead.
+For instance if 10 records are fetched from origin instance, then 24 api calls will be made (1 + 2 10 + 3). This is the worst case scenario where every fetched lead is upserted.
 
 
 # Customize It!<a name="customizeit"/>
