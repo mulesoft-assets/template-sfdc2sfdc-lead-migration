@@ -1,5 +1,6 @@
 # Anypoint Template: SFDC to SFDC Leads Migration
 
++ [License Agreement](#licenseagreement)
 + [Use Case](#usecase)
 + [Run it!](#runit)
     * [Running on premise](#runonpremise)
@@ -14,7 +15,9 @@
 + [Testing the Anypoint Template](#testingtheanypointtemplate)
 
    
-
+# License Agreement <a name="licenseagreement"/>
+Note that using this template is subject to the conditions of this [License Agreement](AnypointTemplateLicense.pdf).
+Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
 As a Salesforce admin I want to synchronize leads between two Salesforce orgs.
@@ -57,7 +60,7 @@ Once you have imported your Anypoint Template into Anypoint Studio you need to f
 
 
 ### Running on Mule ESB stand alone  <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
+Complete all properties in one of the property files, for example in [mule.prod.properties](../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
 
 Once your app is all set and started, there is no need to do anything else. The application will poll SalesForce to know if there are any newly created or updated objects and synchronize them.
 
@@ -148,7 +151,7 @@ This flow has Exception Strategy that basically consists on invoking the *defaul
 
 
 ## errorHandling.xml<a name="errorhandlingxml"/>
-Contains a [Catch Exception Strategy](http://www.mulesoft.org/documentation/display/current/Catch+Exception+Strategy) that is only Logging the exception thrown (If so). As you imagine, this is the right place to handle how your integration will react depending on the different exceptions. 
+Contains a [Catch Exception Strategy](http://www.mulesoft.org/documentation/display/current/Catch+Exception+Strategy) that is only Logging the exception thrown (if so). As you imagine, this is the right place to handle how your integration will react depending on the different exceptions. 
 
 # Testing the Anypoint Template <a name="testingtheanypointtemplate"/>
 
