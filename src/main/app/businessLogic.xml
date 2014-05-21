@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
                     <sfdc:query-single config-ref="SalesforceB" query="SELECT Id, LastModifiedDate FROM Lead WHERE Email = '#[payload['Email']]'" doc:name="query Lead in Salesforce instance B"/>
                 </enricher>
             </batch:step>
-            <batch:step name="selectNewerLeadStep" filter-expression="#[recordVars['leadInB'] is NullPayload]">
+            <batch:step name="selectNewerLeadStep" accept-expression="!(recordVars['leadInB'] is NullPayload)">
                 <choice doc:name="Choice">
                     <when expression="#[org.mule.templates.util.LeadDateComparator.isAfter(payload, recordVars['leadInB'])]">
                         <expression-component doc:name="define Id in SalesForce Intance B"><![CDATA[payload['Id'] = recordVars['leadInB']['Id']
@@ -32,7 +32,7 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
                     </otherwise>
                 </choice>
             </batch:step>
-            <batch:step name="createLeadsInBStep" filter-expression="#[payload is NullPayload]">
+            <batch:step name="createLeadsInBStep" accept-expression="!(payload is NullPayload)">
                 <expression-component doc:name="remove Fields type and LastModifiedDate"><![CDATA[payload.remove('type'); 
 payload.remove('Name');
 payload.remove('LastModifiedDate');]]></expression-component>
