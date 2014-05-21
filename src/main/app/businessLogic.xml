@@ -45,7 +45,7 @@ payload.remove('LastModifiedDate');]]></expression-component>
             </batch:step>
         </batch:process-records>
         <batch:on-complete>
-            <all doc:name="All">
+            <scatter-gather doc:name="All">
                 <processor-chain>
             		<json:object-to-json-transformer doc:name="transform BatchJobInstance to JSON"/>
             		<logger message="Migration process has finished: #[payload]" level="INFO" doc:name="log 'Migration process has finished'"/>
@@ -55,7 +55,7 @@ payload.remove('LastModifiedDate');]]></expression-component>
                 	<json:object-to-json-transformer doc:name="transform BatchJobInstance to JSON"/>
 					<smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" to="${mail.to}" from="${mail.from}" subject="${mail.subject}" responseTimeout="10000" connector-ref="gmailConnector" doc:name="send mail"/>
 				</processor-chain>
-            </all>
+            </scatter-gather>
         </batch:on-complete>
     </batch:job>
     <flow name="mainFlow" doc:name="mainFlow" processingStrategy="synchronous" doc:description="This flow is the entry point to the Anypoint Template  business logic.
