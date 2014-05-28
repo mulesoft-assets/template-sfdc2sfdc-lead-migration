@@ -38,7 +38,7 @@ payload.remove('Name');
 payload.remove('LastModifiedDate');]]></expression-component>
             	
                 <batch:commit size="200" doc:name="Batch Commit">
-					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="upsert leads in org B" externalIdFieldName="Id">
+					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="upsert leads in Salesforce instance B" externalIdFieldName="Id">
                         <sfdc:objects ref="#[payload]"/>
 					</sfdc:upsert>
                 </batch:commit>
