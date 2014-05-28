@@ -1,4 +1,4 @@
-# Anypoint Template: SFDC to SFDC Leads Migration
+# Anypoint Template: Salesforce to Salesforce Leads Migration
 
 + [License Agreement](#licenseagreement)
 + [Use Case](#usecase)
