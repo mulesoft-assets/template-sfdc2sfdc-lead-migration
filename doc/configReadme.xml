@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<configuration>
+	<placeholders>
+		<placeholder id="template_name">Salesforce to Salesforce Lead Migration</placeholder>
+	</placeholders>
+	<sections>
+		<section id="use_case">
+As a Salesforce admin I want to synchronize leads between two Salesforce orgs.
+
+This Anypoint Template should serve as a foundation for the process of migrating leads from one Salesforce instance to another, being able to specify filtering criteria and desired behavior when a lead already exists in the destination org. 
+
+As implemented, this Anypoint Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
+The batch job is divided in  Input, Process and On Complete stages.
+During the Input stage the Anypoint Template will go to the SalesForce Org A and query all the existing Leads that match the filter criteria.
+During the Process stage, each SFDC Lead will be filtered depending on, if it has an existing matching lead in the SFDC Org B and if the last updated date of the later is greater than the one of SFDC Org A.
+The last step of the Process stage will group the leads and create them in SFDC Org B.
+Finally during the On Complete stage the Anypoint Template will both output statistics data into the console and send a notification email with the results of the batch execution.
+		</section>
+		<section id="considerations">
+<![CDATA[
+To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, that must be made in order for all to run smoothly. **Failling to do so could lead to unexpected behavior of the template.**
+]]>
+		</section>
+		<section id="run_it">
+<![CDATA[
+
+In any of the ways you would like to run this Anypoint Template, here is an example of the output you'll see after hitting the HTTP endpoint:
+
+<pre>
+<h1>Batch Process initiated</h1>
+<b>ID:</b>6eea3cc6-7c96-11e3-9a65-55f9f3ae584e<br/>
+<b>Records to Be Processed: </b>9<br/>
+<b>Start execution on: </b>Mon Jan 13 18:05:33 GMT-03:00 2014
+</pre>
+]]>
+		</section>
+		<section id="running_on_cloudhub">
+<![CDATA[
+Once your app is all set and started, supposing you choose as domain name `sfdcleadsync` to trigger the use case you just need to hit `http://sfdcleadsync.cloudhub.io/syncleads` and report will be sent to the e-mails configured.
+]]>
+		</section>
+		<section id="running_on_standalone">
+<![CDATA[
+Once your app is all set and started, there is no need to do anything else. The application will poll SalesForce to know if there are any newly created or updated objects and synchronize them.
+]]>
+		</section>
+		<section id="application_configuration">
+		<![CDATA[
+**Application configuration**
++ http.port `9090` 
+
+**SalesForce Connector configuration for company A**
++ sfdc.a.username `bob.dylan@orga`
++ sfdc.a.password `DylanPassword123`
++ sfdc.a.securityToken `avsfwCUl7apQs56Xq2AKi3X`
++ sfdc.a.url `https://login.salesforce.com/services/Soap/u/26.0`
+
+**SalesForce Connector configuration for company B**
++ sfdc.b.username `joan.baez@orgb`
++ sfdc.b.password `JoanBaez456`
++ sfdc.b.securityToken `ces56arl7apQs56XTddf34X`
++ sfdc.b.url `https://login.salesforce.com/services/Soap/u/26.0`
+
+
+**EMail Details**
++ mail.from=batch.lead.migration%40mulesoft.com
++ mail.to=destination.mail@mulesoft.com
++ mail.subject=Batch Job Finished Report
+]]>
+		</section>
+		<section id="api_calls">
+		<![CDATA[
+Salesforce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. The Anypoint Template calls to the API can be calculated using the formula:
+
+***1 + X + X / 200***
+
+Being ***X*** the number of Leads to be synchronized on each run. 
+
+The division by ***200*** is because, by default, Leads are gathered in groups of 200 for each Upsert API Call in the commit step. Also consider that this calls are executed repeatedly every polling cycle.	
+
+For instance if 10 records are fetched from origin instance, then 12 api calls will be made (1 + 10 + 1).
+]]>
+		</section>
+		<section id="default_endpoints_xml">
+		<![CDATA[
+This is the file where you will found the inbound and outbound sides of your integration app.
+This Anypoint Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.org/documentation/display/current/HTTP+Endpoint+Reference) as the way to trigger the use case.
+
+###  Inbound Flow
+**HTTP Inbound Endpoint** - Start Report Generation
++ `${http.port}` is set as a property to be defined either on a property file or in CloudHub environment variables.
++ The path configured by default is `syncleads` and you are free to change for the one you prefer.
++ The host name for all endpoints in your CloudHub configuration should be defined as `localhost`. CloudHub will then route requests from your application domain URL to the endpoint.
++ The endpoint is configured as a *request-response* since as a result of calling it the response will be the total of Leads migrated and filtered by the criteria specified.
+]]>
+		</section>
+		<section id="default_business_logic_xml">
+		<![CDATA[
+Functional aspect of the Anypoint Template is implemented on this XML, directed by one flow responsible of executing the logic.
+For the purpose of this particular Anypoint Template the *mainFlow* just executes the Batch Job which handles all the logic of it.
+This flow has Exception Strategy that basically consists on invoking the *defaultChoiseExceptionStrategy* defined in *errorHandling.xml* file.
+]]>
+		</section>
+	</sections>
+</configuration>

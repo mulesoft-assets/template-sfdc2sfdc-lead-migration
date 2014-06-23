@@ -1,3 +1,9 @@
+/**
+ * Mule Anypoint Template
+ * Copyright (c) MuleSoft, Inc.
+ * All rights reserved.  http://www.mulesoft.com
+ */
+
 package org.mule.templates.integration;
 
 import static junit.framework.Assert.assertEquals;
@@ -40,7 +46,7 @@ import com.sforce.soap.partner.SaveResult;
  * @author damiansima
  * @author MartinZdila
  */
-public class BusinessLogicTest extends FunctionalTestCase {
+public class BusinessLogicIT extends FunctionalTestCase {
 
 	private static final String MAPPINGS_FOLDER_PATH = "./mappings";
 	private static final String TEST_FLOWS_FOLDER_PATH = "./src/test/resources/flows/";
