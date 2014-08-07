@@ -12,7 +12,6 @@ This Anypoint Template should serve as a foundation for the process of migrating
 As implemented, this Anypoint Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
 The batch job is divided in  Input, Process and On Complete stages.
 During the Input stage the Anypoint Template will go to the SalesForce Org A and query all the existing Leads that match the filter criteria.
-During the Process stage, each SFDC Lead will be filtered depending on, if it has an existing matching lead in the SFDC Org B and if the last updated date of the later is greater than the one of SFDC Org A.
 The last step of the Process stage will group the leads and create them in SFDC Org B.
 Finally during the On Complete stage the Anypoint Template will both output statistics data into the console and send a notification email with the results of the batch execution.
 		</section>
