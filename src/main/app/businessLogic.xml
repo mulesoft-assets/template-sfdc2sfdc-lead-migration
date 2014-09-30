@@ -12,7 +12,7 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
         <batch:threading-profile poolExhaustedAction="WAIT"/>
         <batch:input>
         
-            <sfdc:query config-ref="SalesforceA" query="dsql:SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC" doc:name="query Leads from Salesforce instance A" fetchSize="${page.size}"/>
+            <sfdc:query config-ref="SalesforceA" query="dsql:SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC" doc:name="query Leads from Salesforce instance A" fetchSize="${page.size}"/>
         </batch:input> 
         <batch:process-records>
             <batch:step name="getLeadInBStep">
