@@ -81,7 +81,8 @@ column='486'
 
 ### As destination of data
 
-There are no particular considerations for this Anypoint Template regarding Siebel as data destination.
+There are no particular considerations for this Anypoint Template regarding Salesforce as data destination.
+
 
 
 
@@ -97,7 +98,7 @@ In any of the ways you would like to run this Anypoint Template, here is an exam
 </pre>
 
 ## Running on premise <a name="runonopremise"/>
-In this section we detail the way you have to run you Anypoint Temple on you computer.
+In this section we detail the way you should run your Anypoint Template on your computer.
 
 
 ### Where to Download Mule Studio and Mule ESB
@@ -129,7 +130,7 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
+Complete all properties in one of the property files, for example in [mule.prod.properties] (../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
 Once your app is all set and started, there is no need to do anything else. The application will poll SalesForce to know if there are any newly created or updated objects and synchronize them.
 
 ## Running on CloudHub <a name="runoncloudhub"/>
@@ -158,11 +159,16 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + sfdc.b.securityToken `ces56arl7apQs56XTddf34X`
 + sfdc.b.url `https://login.salesforce.com/services/Soap/u/26.0`
 
+# SMTP Services configuration
++ smtp.host `smtp.gmail.com`
++ smtp.port `587`
++ smtp.user `developer%40mulesoft.com`
++ smtp.password `PASSWORD`
 
 **EMail Details**
-+ mail.from=batch.lead.migration%40mulesoft.com
-+ mail.to=destination.mail@mulesoft.com
-+ mail.subject=Batch Job Finished Report
++ mail.from `batch.lead.migration%40mulesoft.com`
++ mail.to `destination.mail@mulesoft.com`
++ mail.subject `Batch Job Finished Report`
 
 # API Calls <a name="apicalls"/>
 Salesforce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. The Anypoint Template calls to the API can be calculated using the formula:
@@ -215,7 +221,8 @@ This Anypoint Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.o
 
 
 ## errorHandling.xml<a name="errorhandlingxml"/>
-Contains a [Catch Exception Strategy](http://www.mulesoft.org/documentation/display/current/Catch+Exception+Strategy) that is only Logging the exception thrown (If so). As you imagine, this is the right place to handle how your integration will react depending on the different exceptions.
+This is the right place to handle how your integration will react depending on the different exceptions. 
+This file holds a [Choice Exception Strategy](http://www.mulesoft.org/documentation/display/current/Choice+Exception+Strategy) that is referenced by the main flow in the business logic.
 
 
 

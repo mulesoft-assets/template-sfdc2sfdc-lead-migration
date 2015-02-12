@@ -60,11 +60,16 @@ Once your app is all set and started, there is no need to do anything else. The 
 + sfdc.b.securityToken `ces56arl7apQs56XTddf34X`
 + sfdc.b.url `https://login.salesforce.com/services/Soap/u/26.0`
 
+# SMTP Services configuration
++ smtp.host `smtp.gmail.com`
++ smtp.port `587`
++ smtp.user `developer%40mulesoft.com`
++ smtp.password `PASSWORD`
 
 **EMail Details**
-+ mail.from=batch.lead.migration%40mulesoft.com
-+ mail.to=destination.mail@mulesoft.com
-+ mail.subject=Batch Job Finished Report
++ mail.from `batch.lead.migration%40mulesoft.com`
++ mail.to `destination.mail@mulesoft.com`
++ mail.subject `Batch Job Finished Report`
 ]]>
 		</section>
 		<section id="api_calls">

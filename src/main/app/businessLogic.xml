@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
@@ -28,7 +28,7 @@ payload.remove('LastModifiedDate');]]></expression-component>
             	
                 <batch:commit size="200" doc:name="Batch Commit">
 					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="upsert leads in Salesforce instance B" externalIdFieldName="Id">
-                        <sfdc:objects ref="#[payload]"/>
+
 					</sfdc:upsert>
                     <logger message="#[payload]" level="INFO" doc:name="log result"/>
                 </batch:commit>
@@ -48,12 +48,12 @@ payload.remove('LastModifiedDate');]]></expression-component>
             </scatter-gather>
         </batch:on-complete>
     </batch:job>
-    <flow name="mainFlow" doc:name="mainFlow" processingStrategy="synchronous" doc:description="This flow is the entry point to the Anypoint Template  business logic.
+    <flow name="mainFlow"  processingStrategy="synchronous" doc:description="This flow is the entry point to the Anypoint Template  business logic.
 
 This flow should control the direction of the application, and it should be called by the different endpoints that your Anypoint Template  exposes to trigger it.
 
 ">
-        <batch:execute name="migrateLeadsBatch" doc:name="trigger migrateLeadsBatch"/>
+        <batch:execute name="migrateLeadsBatch" doc:name="migrateLeadsBatch"/>
         <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="catch Exception and call defaultChoiceExceptionStrategy"/>
     </flow>
     
