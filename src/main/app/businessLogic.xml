@@ -11,7 +11,6 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
     <batch:job name="migrateLeadsBatch">
         <batch:threading-profile poolExhaustedAction="WAIT"/>
         <batch:input>
-        
             <sfdc:query config-ref="SalesforceA" query="dsql:SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC" doc:name="query Leads from Salesforce instance A" fetchSize="${page.size}"/>
         </batch:input> 
         <batch:process-records>
@@ -28,7 +27,6 @@ payload.remove('LastModifiedDate');]]></expression-component>
             	
                 <batch:commit size="200" doc:name="Batch Commit">
 					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="upsert leads in Salesforce instance B" externalIdFieldName="Id">
-
 					</sfdc:upsert>
                     <logger message="#[payload]" level="INFO" doc:name="log result"/>
                 </batch:commit>
