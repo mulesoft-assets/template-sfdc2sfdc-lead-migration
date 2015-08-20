@@ -1,47 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" 
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" 
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" 
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" 
+	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	version="EE-3.7.1" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
-http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
     <batch:job name="migrateLeadsBatch">
         <batch:threading-profile poolExhaustedAction="WAIT"/>
         <batch:input>
-            <sfdc:query config-ref="SalesforceA" query="dsql:SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC" doc:name="query Leads from Salesforce instance A" fetchSize="${page.size}"/>
+        
+            <sfdc:query config-ref="SalesforceA" query="dsql:SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC" doc:name="Query Leads from Salesforce instance A" fetchSize="${page.size}"/>
         </batch:input> 
         <batch:process-records>
             <batch:step name="getLeadInBStep">
-                <enricher source="#[payload]" target="#[recordVars['leadInB']]" doc:name="store result in record var 'leadInB'">
-                    <sfdc:query-single config-ref="SalesforceB" query="SELECT Id, LastModifiedDate FROM Lead WHERE Email = '#[payload['Email']]'" doc:name="query Lead in Salesforce instance B"/>
+                <enricher source="#[payload != null ? payload.Id : null]" target="#[payload.Id]" doc:name="store existing lead Id in payload Id field">
+                    <sfdc:query-single config-ref="SalesforceB" query="SELECT Id FROM Lead WHERE Email = '#[payload['Email']]'" doc:name="Query Lead in Salesforce instance B"/>
                 </enricher>
             </batch:step>
-            <batch:step name="createLeadsInBStep" accept-expression="!(payload is NullPayload)">
-                <expression-component doc:name="prepare properties for upsert"><![CDATA[payload['Id'] = recordVars['leadInB'] is NullPayload ? null : recordVars['leadInB']['Id']
-payload.remove('type'); 
-payload.remove('Name');
-payload.remove('LastModifiedDate');]]></expression-component>
+            <batch:step name="createLeadsInBStep" accept-expression="payload != null">
+
             	
                 <batch:commit size="200" doc:name="Batch Commit">
-					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="upsert leads in Salesforce instance B" externalIdFieldName="Id">
+                    <dw:transform-message doc:name="Prepare properties for upsert">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map {
+	($ - 'type' - 'Name' - 'LastModifiedDate')
+}]]></dw:set-payload>
+                    </dw:transform-message>
+					<sfdc:upsert config-ref="SalesforceB" type="Lead" doc:name="Upsert leads in Salesforce instance B" externalIdFieldName="Id">
+                        <sfdc:objects ref="#[payload]"/>
 					</sfdc:upsert>
-                    <logger message="#[payload]" level="INFO" doc:name="log result"/>
+                    <logger message="#[payload]" level="INFO" doc:name="Log result"/>
                 </batch:commit>
             </batch:step>
         </batch:process-records>
         <batch:on-complete>
             <scatter-gather doc:name="All">
                 <processor-chain>
-            		<json:object-to-json-transformer doc:name="transform BatchJobInstance to JSON"/>
-            		<logger message="Migration process has finished: #[payload]" level="INFO" doc:name="log 'Migration process has finished'"/>
-						<logger message="Migration process has finished:" level="INFO" doc:name="log 'Migration process has finished'"/>
+            		<json:object-to-json-transformer doc:name="Transform BatchJobInstance to JSON"/>
+            		<logger message="Migration process has finished: #[payload]" level="INFO" doc:name="Log 'Migration process has finished'"/>
+
                 </processor-chain>
 				<processor-chain>
-                	<json:object-to-json-transformer doc:name="transform BatchJobInstance to JSON"/>
-					<smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" to="${mail.to}" from="${mail.from}" subject="${mail.subject}" responseTimeout="10000" connector-ref="gmailConnector" doc:name="send mail"/>
+                    <json:object-to-json-transformer doc:name="Transform BatchJobInstance to JSON"/>
+
+					<smtp:outbound-endpoint host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" to="${mail.to}" from="${mail.from}" subject="${mail.subject}" responseTimeout="10000" connector-ref="gmailConnector" doc:name="Send mail"/>
 				</processor-chain>
             </scatter-gather>
         </batch:on-complete>
@@ -51,7 +69,7 @@ payload.remove('LastModifiedDate');]]></expression-component>
 This flow should control the direction of the application, and it should be called by the different endpoints that your Anypoint Template  exposes to trigger it.
 
 ">
-        <batch:execute name="migrateLeadsBatch" doc:name="migrateLeadsBatch"/>
+        <batch:execute name="migrateLeadsBatch" doc:name="Trigger migrateLeadsBatch"/>
         <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="catch Exception and call defaultChoiceExceptionStrategy"/>
     </flow>
     

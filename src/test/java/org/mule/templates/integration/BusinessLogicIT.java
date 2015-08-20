@@ -20,6 +20,8 @@ import java.util.Properties;
 
 import junit.framework.Assert;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,8 +48,10 @@ import com.sforce.soap.partner.SaveResult;
  * @author damiansima
  * @author MartinZdila
  */
+@SuppressWarnings("deprecation")
 public class BusinessLogicIT extends FunctionalTestCase {
 
+	private final static Logger LOGGER = LogManager.getLogger(BusinessLogicIT.class);	
 	private static final String MAPPINGS_FOLDER_PATH = "./mappings";
 	private static final String TEST_FLOWS_FOLDER_PATH = "./src/test/resources/flows/";
 	private static final String MULE_DEPLOY_PROPERTIES_PATH = "./src/main/app/mule-deploy.properties";
@@ -140,7 +144,7 @@ public class BusinessLogicIT extends FunctionalTestCase {
 		MuleEvent event = createLeadInAFlow.process(getTestEvent(createdLeadsInA, MessageExchangePattern.REQUEST_RESPONSE));
 	
 		List<SaveResult> results = (List<SaveResult>) event.getMessage().getPayload();
-		System.out.println("Results from creation in A" + results.toString());
+		LOGGER.info("Results from creation in A" + results.toString());
 		for (int i = 0; i < results.size(); i++) {
 			createdLeadsInA.get(i).put("Id", results.get(i).getId());
 		}
