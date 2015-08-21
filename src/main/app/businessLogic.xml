@@ -30,7 +30,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
                     <sfdc:query-single config-ref="SalesforceB" query="SELECT Id FROM Lead WHERE Email = '#[payload['Email']]'" doc:name="Query Lead in Salesforce instance B"/>
                 </enricher>
             </batch:step>
-            <batch:step name="createLeadsInBStep" accept-expression="payload != null">
+            <batch:step name="upsertLeadsInBStep" accept-expression="payload != null">
 
             	
                 <batch:commit size="200" doc:name="Batch Commit">
