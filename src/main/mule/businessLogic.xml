@@ -1,55 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
 	xmlns:email="http://www.mulesoft.org/schema/mule/email"
 	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<salesforce:sfdc-config name="Salesforce_Sfdc_A_config"
-		doc:name="Salesforce Sfdc config" doc:id="38a0808d-8f32-4c87-a763-4db431b3c4cd">
-		<salesforce:basic-connection 
-			username="${sfdc.a.username}"
-			password="${sfdc.a.password}" 
-			securityToken="${sfdc.a.securityToken}"
-			url= "${sfdc.a.url}" />
-	</salesforce:sfdc-config>
-	<salesforce:sfdc-config name="Salesforce_Sfdc_B_config"
-		doc:name="Salesforce Sfdc config" doc:id="3d4eabb0-83f2-4e02-97e1-77c5417347f7">
-		<salesforce:basic-connection 
-			username="${sfdc.b.username}"
-			password="${sfdc.b.password}" 
-			securityToken="${sfdc.b.securityToken}"
-			url= "${sfdc.b.url}" />
-	</salesforce:sfdc-config>
-	<tls:context name="TLS_Context" doc:name="TLS Context" doc:id="322debdf-e869-4294-8d83-e47f7376cbe8" >
-		<tls:trust-store insecure="true" />
-	</tls:context>
-	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="7b0a7d4a-d12d-436a-b8ea-f4c9b77f381c" >
-		<email:smtps-connection 
-			host="${smtp.host}" 
-			port="${smtp.port}" 
-			user="${smtp.user}" 
-			password="${smtp.password}" 
-			tlsContext="TLS_Context" />
-	</email:smtp-config>
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3885a11b-2cbb-43ca-a34d-ca02fca25e54" >
-		<http:listener-connection 
-			host="0.0.0.0" 
-			port="${http.port}" />
-	</http:listener-config>
-	
-	<configuration-properties doc:name="Configuration properties" doc:id="c9163724-ef17-4160-9270-1ed94dc7f102" file="common.properties" />
-	<configuration-properties doc:name="Configuration properties" doc:id="995ad771-f6d6-4154-94b5-527ace6350c1" file="mule.${mule.env}.properties" />
-	<flow name="template-sfdc2sfdc-lead-migrationFlow" doc:id="32215718-08af-4f29-91bd-54cb5b97dcef" >
-		<http:listener config-ref="HTTP_Listener_config" path="/syncleads" doc:name="Listener" doc:id="23d52a98-cc66-4d13-8c24-43b6aaffd0de" />
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+	<flow name="businessLogicFlow" doc:id="32215718-08af-4f29-91bd-54cb5b97dcef" >
 		<salesforce:query config-ref="Salesforce_Sfdc_A_config" doc:name="Query Leads from Salesforce instance A" doc:id="ebcf71a8-3192-4437-b2cb-b23f008afae5">
 			<salesforce:salesforce-query>SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC</salesforce:salesforce-query>
 		</salesforce:query>
@@ -73,7 +37,7 @@ payload ++ vars.Id]]></ee:set-payload>
 						</ee:message>
 					</ee:transform>
 				</batch:step>
-				<batch:step name="upsertLeadsInBStep" doc:id="78a74ab4-9b91-416d-985a-acda2ac377eb">
+				<batch:step name="upsertLeadsInBStep" doc:id="78a74ab4-9b91-416d-985a-acda2ac377eb" acceptExpression="payload != null">
 					<batch:aggregator doc:name="Batch Aggregator" doc:id="1ad86a98-643e-494a-a90a-32daab0b03cc" size="${page.size}">
 						<ee:transform doc:name="Prepare properties for upsert" doc:id="d484063f-6d81-42ce-98ef-7cec51b04672" >
 							<ee:message >
@@ -120,8 +84,14 @@ output text/plain
 				</scatter-gather>
 			</batch:on-complete>
 		</batch:job>
-		<set-payload value="Migration process has started!" doc:name="Set Payload" doc:id="ed424ae3-63c0-4e57-89d8-635beaf63362" mimeType="text/html"/>
-	
 	</flow>
 
+	<flow name="mainFlow" doc:id="7c0a5bef-b3d5-442f-bff3-10d038f69a5e" >
+		<flow-ref doc:name="Trigger businessLogicFlow" doc:id="91360ede-4d71-44c7-9b64-8ee762e04ea0" name="businessLogicFlow"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="488b507d-e26c-4c56-8759-8bb4f6645d71" type="ANY">
+				<flow-ref doc:name="errorHandlingFlow" doc:id="afdaf73c-0137-4d60-84f6-5c41234771a3" name="errorHandlingFlow" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
 </mule>
