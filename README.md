@@ -40,7 +40,8 @@ Finally during the *On Complete* stage the Anypoint Template will both output st
 
 # Considerations <a name="considerations"/>
 
-To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, that must be made in order for all to run smoothly. **Failling to do so could lead to unexpected behavior of the template.**
+To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, that must be made in order for all to run smoothly. 
+**Failing to do so could lead to unexpected behavior of the template.**
 
 
 
@@ -173,11 +174,11 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 # API Calls <a name="apicalls"/>
 Salesforce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. The Anypoint Template calls to the API can be calculated using the formula:
 
-***1 + X + X / {page.size}***
+***1 + X + X / ${page.size}***
 
 Being ***X*** the number of Leads to be synchronized on each run.
 
-The division by ***{page.size}*** is because, by default, Leads are gathered in groups of {page.size} for each Upsert API Call in the commit step.
+The division by ***${page.size}*** is because, by default, Leads are gathered in groups of ${page.size} for each Upsert API Call in the commit step.
 
 For instance if 10 records are fetched from origin instance, then 12 api calls will be made (1 + 10 + 1).
 
@@ -204,7 +205,6 @@ In the visual editor they can be found on the *Global Element* tab.
 ## businessLogic.xml<a name="businesslogicxml"/>
 Functional aspect of the Anypoint Template is implemented on this XML, directed by one flow responsible of executing the logic.
 For the purpose of this particular Anypoint Template the *mainFlow* just executes the Batch Job which handles all the logic of it.
-This flow has Exception Handling that basically consists on invoking the *errorHandlingFlow* defined in *errorHandling.xml* file.
 
 
 
