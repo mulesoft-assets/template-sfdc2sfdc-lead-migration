@@ -25,11 +25,11 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-As a Salesforce admin I want to synchronize leads between two Salesforce orgs.
+As a Salesforce admin I want to migrate Leads from one Salesforce organization to another one.
 
-This Anypoint Template should serve as a foundation for the process of migrating leads from one Salesforce instance to another, being able to specify filtering criteria and desired behavior when a lead already exists in the destination org.
+This Anypoint Template should serve as a foundation for the process of migrating leads from one Salesforce instance to another, being able to specify filtering criteria and desired behavior when a lead already exists in the destination org. 
 
-As implemented, this Anypoint Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
+As implemented, this Anypoint Template leverages the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
 
 The batch job is divided in *Process* and *On Complete* stages.
 
@@ -111,7 +111,7 @@ First thing to know if you are a newcomer to Mule is where to get the tools.
 
 
 ### Importing an Anypoint Template into Studio
-Mule Studio offers several ways to import a project into the workspace, for instance:
+Mule Studio offers several ways to import a project into the workspace, for instance: 
 
 + Anypoint Studio Project from File System
 + Packaged mule application (.jar)
@@ -124,14 +124,14 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 
 + Locate the properties file `mule.dev.properties`, in src/main/resources
 + Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
-+ Once that is done, right click on you Anypoint Template project folder
++ Once that is done, right click on you Anypoint Template project folder 
 + Hover you mouse over `"Run as"`
 + Click on  `"Mule Application"`
 
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties](../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
-Once your app is all set and started, there is no need to do anything else. The application will poll SalesForce to know if there are any newly created or updated objects and synchronize them.
+Complete all properties in one of the property files, for example in [mule.prod.properties] (../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
+Once your app is all set and started, there is no need to do anything else. The application will poll Salesforce to know if there are any newly created or updated objects and synchronize them.
 
 ## Running on CloudHub <a name="runoncloudhub"/>
 While [creating your application on CloudHub](http://www.mulesoft.org/documentation/display/current/Hello+World+on+CloudHub) (Or you can do it later as a next step), you need to go to Deployment > Advanced to set all environment variables detailed in **Properties to be configured** as well as the **mule.env**.
@@ -145,17 +145,17 @@ Mule Studio provides you with really easy way to deploy your Template directly t
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:
 ### Application configuration
 **Application configuration**
-+ http.port `9090`
++ http.port `9090` 
 
 **Batch Aggregator configuration**
 + page.size `1000`
 
-**SalesForce Connector configuration for company A**
+**Salesforce Connector configuration for company A**
 + sfdc.a.username `bob.dylan@orga`
 + sfdc.a.password `DylanPassword123`
 + sfdc.a.securityToken `avsfwCUl7apQs56Xq2AKi3X`
 
-**SalesForce Connector configuration for company B**
+**Salesforce Connector configuration for company B**
 + sfdc.b.username `joan.baez@orgb`
 + sfdc.b.password `JoanBaez456`
 + sfdc.b.securityToken `ces56arl7apQs56XTddf34X`
@@ -176,7 +176,7 @@ Salesforce imposes limits on the number of API Calls that can be made. Therefore
 
 ***1 + X + X / ${page.size}***
 
-Being ***X*** the number of Leads to be synchronized on each run.
+Being ***X*** the number of Leads to be synchronized on each run. 
 
 The division by ***${page.size}*** is because, by default, Leads are gathered in groups of ${page.size} for each Upsert API Call in the commit step.
 
@@ -204,7 +204,7 @@ In the visual editor they can be found on the *Global Element* tab.
 
 ## businessLogic.xml<a name="businesslogicxml"/>
 Functional aspect of the Anypoint Template is implemented on this XML, directed by one flow responsible of executing the logic.
-For the purpose of this particular Anypoint Template the *mainFlow* just executes the Batch Job which handles all the logic of it.
+For the purpose of this particular Template the *mainFlow* uses a [Batch Job](http://www.mulesoft.org/documentation/display/current/Batch+Processing), which handles all the logic of it.
 
 
 
@@ -221,5 +221,8 @@ This Anypoint Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.o
 
 
 ## errorHandling.xml<a name="errorhandlingxml"/>
-This is the right place to handle how your integration will react depending on the different exceptions.
+This is the right place to handle how your integration will react depending on the different exceptions. 
 This file holds a [Error Handling](http://www.mulesoft.org/documentation/display/current/Error+Handling) that is referenced by the main flow in the business logic.
+
+
+
