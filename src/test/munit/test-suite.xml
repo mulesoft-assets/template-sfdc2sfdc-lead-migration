@@ -120,6 +120,7 @@ output application/java
 			<munit-tools:assert-that doc:name="Assert that we found migrated Lead"
 				doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]"
 				is="#[MunitTools::equalTo(1)]" />
+			<set-variable value="#[payload map ($.Id)]" doc:name="Seet Variable with new ID Lead" doc:id="1cc83533-ba23-49ba-877e-f3b55c986afa" variableName="instanceBNewLeads"/>
 			<salesforce:delete doc:name="Delete migrated Lead from B"
 				doc:id="353f9ea2-b733-4370-9d93-a97ee651f5e4" config-ref="Salesforce_Sfdc_B_config">
 				<salesforce:delete-ids><![CDATA[#[payload map ($.Id)]]]></salesforce:delete-ids>
@@ -148,6 +149,9 @@ output application/java
 		<salesforce:delete doc:name="Delete source Lead in instance B"
 			doc:id="284bea48-594f-4fac-b08a-cdcaf0b2b3e8" config-ref="Salesforce_Sfdc_B_config">
 			<salesforce:delete-ids><![CDATA[#[vars.sfdcBIds]]]></salesforce:delete-ids>
+		</salesforce:delete>
+		<salesforce:delete doc:name="Delete new Lead in instance B" doc:id="c1f87cab-f5bc-4398-9195-5a8fe93fbbf4" config-ref="Salesforce_Sfdc_B_config" >
+			<salesforce:delete-ids ><![CDATA[#[vars.instanceBNewLeads]]]></salesforce:delete-ids>
 		</salesforce:delete>
 	</munit:after-test>
 
