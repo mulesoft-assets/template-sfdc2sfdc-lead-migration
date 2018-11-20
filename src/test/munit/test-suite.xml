@@ -121,10 +121,6 @@ output application/java
 				doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]"
 				is="#[MunitTools::equalTo(1)]" />
 			<set-variable value="#[payload map ($.Id)]" doc:name="Seet Variable with new ID Lead" doc:id="1cc83533-ba23-49ba-877e-f3b55c986afa" variableName="instanceBNewLeads"/>
-			<salesforce:delete doc:name="Delete migrated Lead from B"
-				doc:id="353f9ea2-b733-4370-9d93-a97ee651f5e4" config-ref="Salesforce_Sfdc_B_config">
-				<salesforce:delete-ids><![CDATA[#[payload map ($.Id)]]]></salesforce:delete-ids>
-			</salesforce:delete>
 			<salesforce:query
 				doc:name="Query for Lead, which should be updated in instance B"
 				doc:id="9e6b41b3-28a9-4886-9fe8-ce16408c790b" config-ref="Salesforce_Sfdc_B_config">
@@ -136,8 +132,8 @@ output application/java
 	"email2" : vars.testInterpreter2.Email
 }]]]></salesforce:parameters>
 			</salesforce:query>
-			<set-variable value="#[payload[0].LastName == vars.testInterpreter2.Lastname]" doc:name="Set Variable with result size" doc:id="a7d6e9a8-81c0-4712-920f-d8a72978e0e6" variableName="resultSize"/>
-			<munit-tools:assert-that doc:name="Assert that we found updated Contact" doc:id="e672228f-5afa-40aa-acbc-d6dd8afe1e55" expression="#[vars.resultSize]" is="#[MunitTools::equalTo(true)]"/>
+			<set-variable value="#[payload[0].LastName == vars.testInterpreter2.Lastname]" doc:name="Set Variable with check update lastName" doc:id="a7d6e9a8-81c0-4712-920f-d8a72978e0e6" variableName="checkUpdateLastName"/>
+			<munit-tools:assert-that doc:name="Assert that we found updated Lead" doc:id="e672228f-5afa-40aa-acbc-d6dd8afe1e55" expression="#[vars.checkUpdateLastName]" is="#[MunitTools::equalTo(true)]"/>
 		</munit:execution>
 	</munit:test>
 	<munit:after-test name="test-suiteAfter_Test"
