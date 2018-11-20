@@ -116,10 +116,7 @@ output application/java
 }]]]></salesforce:parameters>
 			</salesforce:query>
 			<set-variable value="#[sizeOf(payload)]" doc:name="Set Variable with result size"
-				doc:id="b485fb70-e4a8-4f97-9da9-e0ace1a236c9" variableName="resultSize" />
-			<munit-tools:assert-that doc:name="Assert that we found migrated Lead"
-				doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.resultSize]"
-				is="#[MunitTools::equalTo(1)]" />
+				doc:id="b485fb70-e4a8-4f97-9da9-e0ace1a236c9" variableName="checkMigratedLead" />
 			<set-variable value="#[payload map ($.Id)]" doc:name="Seet Variable with new ID Lead" doc:id="1cc83533-ba23-49ba-877e-f3b55c986afa" variableName="instanceBNewLeads"/>
 			<salesforce:query
 				doc:name="Query for Lead, which should be updated in instance B"
@@ -133,8 +130,11 @@ output application/java
 }]]]></salesforce:parameters>
 			</salesforce:query>
 			<set-variable value="#[payload[0].LastName == vars.testInterpreter2.Lastname]" doc:name="Set Variable with check update lastName" doc:id="a7d6e9a8-81c0-4712-920f-d8a72978e0e6" variableName="checkUpdateLastName"/>
-			<munit-tools:assert-that doc:name="Assert that we found updated Lead" doc:id="e672228f-5afa-40aa-acbc-d6dd8afe1e55" expression="#[vars.checkUpdateLastName]" is="#[MunitTools::equalTo(true)]"/>
 		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that we found migrated Lead" doc:id="a8f4453a-10c6-4508-8ecf-64cc08e6129c" expression="#[vars.checkMigratedLead]" is="#[MunitTools::equalTo(1)]" />
+			<munit-tools:assert-that doc:name="Assert that we found updated Lead" doc:id="e672228f-5afa-40aa-acbc-d6dd8afe1e55" expression="#[vars.checkUpdateLastName]" is="#[MunitTools::equalTo(true)]" />
+		</munit:validation>
 	</munit:test>
 	<munit:after-test name="test-suiteAfter_Test"
 		description="After tests actions" doc:id="5b85bb9e-67e6-47f7-8f71-53a39f147fc8">
