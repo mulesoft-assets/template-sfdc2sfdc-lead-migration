@@ -18,14 +18,13 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		doc:id="c382dc50-b83c-41be-ad31-42ccb929d758" file="mule.test.properties" />
 	<munit:before-test name="test-suiteBefore_Test"
 		description="Before tests actions" doc:id="7f8facb1-95ae-4456-9448-faf3a3a89dc9">
-		<set-variable value='#["Test_" ++ uuid()[0 to 7] ++ "_"]' doc:name="Set Variable" doc:id="437923cd-c466-47ac-8367-6348068ee8fe" variableName="uniqueId"/>
+		<set-variable value='#["test_" ++ uuid()[0 to 7] ++ "_"]' doc:name="Set Variable" doc:id="437923cd-c466-47ac-8367-6348068ee8fe" variableName="uniqueId"/>
 		<ee:transform doc:name="Prepare common testing data"
 			doc:id="60f36413-9705-48da-bc7f-173f614b7408">
 			<ee:message />
 			<ee:variables>
 				<ee:set-variable variableName="testInterpreter1"><![CDATA[%dw 2.0
 output application/java
-var id= randomInt(1000)
 ---
 {	
 	Lastname: vars.uniqueId ++ "TestRecord1",
@@ -35,7 +34,6 @@ var id= randomInt(1000)
 ]]></ee:set-variable>
 				<ee:set-variable variableName="testInterpreter2"><![CDATA[%dw 2.0
 output application/java
-var id= randomInt(1000)
 ---
 {	
 	Lastname: vars.uniqueId ++ "TestRecord2",
@@ -108,18 +106,13 @@ output application/java
 payload filter (startsWith($.Email, vars.uniqueId))]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
-			<flow-ref doc:name="Flow-ref to selectDataSub_Flow" doc:id="7db329d9-7ce6-43e4-99fc-48a858c201a3" name="selectDataSub_Flow" />
+			<flow-ref doc:name="Flow-ref to selectDataSub_Flow" doc:id="7db329d9-7ce6-43e4-99fc-48a858c201a3" name="businessLogicFlow" />
 			<scripting:execute doc:name="Sleep for 60s until the processing is completed" doc:id="b09fe305-3000-4571-b824-8b555395ccb7" engine="groovy">
 				<scripting:code>sleep(60000)</scripting:code>
-				<scripting:code >sleep(10000)</scripting:code>
 			</scripting:execute>
-			<salesforce:query
-				doc:name="Query for Lead, which should be migrated to instance B"
-				doc:id="145cdbc1-3137-4eef-b8e3-7aea91cb9833" config-ref="Salesforce_Sfdc_B_config">
-				<salesforce:salesforce-query>SELECT Id FROM Lead WHERE Email =
-					':email1'
-				</salesforce:salesforce-query>
-				<salesforce:parameters><![CDATA[#[output application/java
+			<salesforce:query doc:name="Query for Lead, which should be migrated to instance B" doc:id="f1d6d7f4-2662-4836-bf30-61ba920db255" config-ref="Salesforce_Sfdc_B_config">
+				<salesforce:salesforce-query >SELECT Id FROM Lead WHERE Email =	':email1'</salesforce:salesforce-query>
+				<salesforce:parameters ><![CDATA[#[output application/java
 ---
 {
 	"email1" : vars.testInterpreter1.Email
@@ -128,12 +121,9 @@ payload filter (startsWith($.Email, vars.uniqueId))]]></ee:set-payload>
 			<set-variable value="#[sizeOf(payload)]" doc:name="Set Variable with result size"
 				doc:id="b485fb70-e4a8-4f97-9da9-e0ace1a236c9" variableName="checkMigratedLead" />
 			<set-variable value="#[payload map ($.Id)]" doc:name="Seet Variable with new ID Lead" doc:id="1cc83533-ba23-49ba-877e-f3b55c986afa" variableName="instanceBNewLeads"/>
-			<salesforce:query
-				doc:name="Query for Lead, which should be updated in instance B"
-				doc:id="9e6b41b3-28a9-4886-9fe8-ce16408c790b" config-ref="Salesforce_Sfdc_B_config">
-				<salesforce:salesforce-query>SELECT Id, LastName FROM Lead WHERE
-					Email = ':email2'</salesforce:salesforce-query>
-				<salesforce:parameters><![CDATA[#[output application/java
+			<salesforce:query doc:name="Query for Lead, which should be updated in instance B" doc:id="0a667f53-03ef-4fca-9139-87b30a7e8736" config-ref="Salesforce_Sfdc_B_config">
+				<salesforce:salesforce-query >SELECT Id, LastName FROM Lead WHERE Email = ':email2'</salesforce:salesforce-query>
+				<salesforce:parameters ><![CDATA[#[output application/java
 ---
 {
 	"email2" : vars.testInterpreter2.Email
