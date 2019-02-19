@@ -14,9 +14,6 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 
 	<flow name="businessLogicFlow" doc:id="32215718-08af-4f29-91bd-54cb5b97dcef" >
-		<salesforce:query config-ref="Salesforce_Sfdc_A_config" doc:name="Query Leads from Salesforce instance A" doc:id="ebcf71a8-3192-4437-b2cb-b23f008afae5">
-			<salesforce:salesforce-query>SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC</salesforce:salesforce-query>
-		</salesforce:query>
 		<batch:job jobName="migrateLeadsBatch" doc:id="204892ae-0d97-4326-beae-310c8d52b7a6" >
 			<batch:process-records >
 				<batch:step name="getLeadInBStep" doc:id="89713774-362a-4e92-9bdc-41e31802bf38" >
@@ -86,7 +83,14 @@ output text/plain
 		</batch:job>
 	</flow>
 
+	<sub-flow name="selectDataSub_Flow" doc:id="f2d7c3ae-f3cf-453d-b311-96f99eaf44f5" >
+		<salesforce:query config-ref="Salesforce_Sfdc_A_config" doc:name="Query Leads from Salesforce instance A" doc:id="ebcf71a8-3192-4437-b2cb-b23f008afae5">
+			<salesforce:salesforce-query>SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC</salesforce:salesforce-query>
+			<salesforce:salesforce-query >SELECT Title,Email,FirstName,LastModifiedDate,LastName,Name, Company, Status FROM Lead WHERE Email &lt;&gt; '' ORDER BY Email ASC</salesforce:salesforce-query>
+		</salesforce:query>
+	</sub-flow>
 	<flow name="mainFlow" doc:id="7c0a5bef-b3d5-442f-bff3-10d038f69a5e" >
+		<flow-ref doc:name="Trigger selectDataSub_Flow" doc:id="32932eeb-f66a-4ba0-8ed8-3de1638f685b" name="selectDataSub_Flow"/>
 		<flow-ref doc:name="Trigger businessLogicFlow" doc:id="91360ede-4d71-44c7-9b64-8ee762e04ea0" name="businessLogicFlow"/>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="488b507d-e26c-4c56-8759-8bb4f6645d71" type="ANY">
